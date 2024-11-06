@@ -1,4 +1,4 @@
-from basic_table import BasicTable
+from loader.basic_table import BasicTable
 import glob
 import os
 import fnmatch
@@ -36,9 +36,9 @@ class LDBC:
     def get_table(self, table_name):
         return self.table[table_name]
 
-path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvCompositeMergeForeign-LongDateFormatter"
-ldbc = LDBC(path)
-ldbc.load_data()
-print(ldbc.get_table("Person"))
+# path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvCompositeMergeForeign-LongDateFormatter"
+# ldbc = LDBC(path)
+# ldbc.load_data()
+# print(ldbc.get_table("Person"))
 
 
