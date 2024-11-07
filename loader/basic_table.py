@@ -18,7 +18,7 @@ class BasicTable:
         return self.header
     
     def get_column_data(self, column_name):
-        return self.df[column_name].tolist()
+        return self.df[column_name].to_numpy()
     
     def get_column_data_tensor(self, column_name):
         return torch.tensor(self.df[column_name].tolist())

@@ -21,6 +21,9 @@ class LDBC:
         ]
         self.table = {}
         self.edge_table = {}
+        self.static_table_name = []
+        self.dynamic_table_name = ['Comment', 'Person', 'Person_likes_Comment']
+        self.edge_table_name = ['Person_likes_Comment']
     
     def load_data(self):
         for table_name in self.static_table_name:
@@ -28,7 +31,7 @@ class LDBC:
             pattern = re.compile(f'^{table_name.lower()}(_\\d+_\\d+)?$', re.IGNORECASE)
             matched_files = [file for file in files if pattern.match(os.path.splitext(os.path.basename(file))[0].lower())]
             for file in matched_files:
-                print(f"Processing file: {file}")
+                # print(f"Processing file: {file}")
                 table = BasicTable(file)
                 self.table[table_name] = table
         
@@ -37,13 +40,12 @@ class LDBC:
             pattern = re.compile(f'^{table_name.lower()}(_\\d+_\\d+)?$', re.IGNORECASE)
             matched_files = [file for file in files if pattern.match(os.path.splitext(os.path.basename(file))[0].lower())]
             for file in matched_files:
-                print(f"Processing file: {file}")
+                # print(f"Processing file: {file}")
                 table = BasicTable(file)
                 self.table[table_name] = table
     
     def build_edge_table(self):
         for table_name in self.edge_table_name:
-            print(self.table[table_name])
             table = self.table[table_name]
             src = table.get_df().iloc[:, 0].to_numpy()
             dst = table.get_df().iloc[:, 1].to_numpy()
