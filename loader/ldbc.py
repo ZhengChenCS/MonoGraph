@@ -1,18 +1,26 @@
-from loader.basic_table import BasicTable
+from loader.basic_table import BasicTable, EdgeTable
 import glob
 import os
 import fnmatch
 import re
+import torch
 
 class LDBC:
     def __init__(self, path):
         self.parent_path = path
         self.static_table_name = ['Organisation',  'Place', 'Tag', 'TagClass']
-        self.dynamic_table_name = ['Comment', 'Person', 'Person_studyAt_University', 'Comment_hasTag_Tag', 
-        'Person_hasInterest_Tag',  'Person_workAt_Company', 
+        self.dynamic_table_name = ['Comment', 'Person', 'Person_studyAt_organisation', 'Comment_hasTag_Tag', 
+        'Person_hasInterest_Tag',  'Person_workAt_organisation', 
         'Forum', 'Person_knows_Person', 'Post', 'Forum_hasMember_Person',  'Person_likes_Comment', 'Post_hasTag_Tag',
         'Forum_hasTag_Tag', 'Person_likes_Post']
+        self.vertex_table_name = ['Comment', 'Person', 'Forum', 'Post']
+        self.edge_table_name = ['Person_studyAt_organisation', 'Comment_hasTag_Tag', 
+        'Person_hasInterest_Tag', 'Person_workAt_organisation',
+        'Person_knows_Person', 'Forum_hasMember_Person', 'Person_likes_Comment',
+        'Post_hasTag_Tag', 'Forum_hasTag_Tag', 'Person_likes_Post'
+        ]
         self.table = {}
+        self.edge_table = {}
     
     def load_data(self):
         for table_name in self.static_table_name:
@@ -32,6 +40,15 @@ class LDBC:
                 print(f"Processing file: {file}")
                 table = BasicTable(file)
                 self.table[table_name] = table
+    
+    def build_edge_table(self):
+        for table_name in self.edge_table_name:
+            print(self.table[table_name])
+            table = self.table[table_name]
+            src = table.get_df().iloc[:, 0].to_numpy()
+            dst = table.get_df().iloc[:, 1].to_numpy()
+            edge_table = EdgeTable(torch.tensor(src), torch.tensor(dst))
+            self.edge_table[table_name] = edge_table
 
     def get_table(self, table_name):
         return self.table[table_name]

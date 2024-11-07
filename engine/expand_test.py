@@ -9,6 +9,7 @@ from torch_sparse import SparseTensor
 if __name__ == "__main__":
     ldbc = LDBC("/mnt/nvme/ldbc_dataset/social_network-sf10-CsvCompositeMergeForeign-LongDateFormatter")
     ldbc.load_data()
+    ldbc.build_edge_table()
 
     place_id = 1356
 
@@ -21,15 +22,9 @@ if __name__ == "__main__":
     person_ids_in_place = person_ids[place_ids == place_id]
     print(person_ids_in_place)
 
-    # get all comment ids that person_ids_in_place like
-    comment_ids = person_like_comment_table.get_column_data_tensor('Comment.id')
-    person_like_comment_ids = person_like_comment_table.get_column_data_tensor('Person.id')
-
-    person_like_comment_sp = SparseTensor(row=person_like_comment_ids, 
-                                          col=comment_ids, 
-                                          value=None, 
-                                          sparse_sizes=(person_like_comment_ids.max().item()+1, comment_ids.max().item()+1))
-    print(person_like_comment_sp)
-    
-    # comment_ids_liked_by_person_ids = comment_ids[person_like_comment_ids == person_ids_in_place]
-    # print(comment_ids_liked_by_person_ids)
+    # get all comment ids liked by person_ids_in_place
+    person_like_comment_table = ldbc.edge_table["Person_likes_Comment"]
+    rowptr, output, e_id = person_like_comment_table.expand(person_ids_in_place)
+    print(rowptr)
+    print(output)
+    print(e_id)
