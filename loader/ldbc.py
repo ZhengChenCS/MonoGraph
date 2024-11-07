@@ -21,9 +21,6 @@ class LDBC:
         ]
         self.table = {}
         self.edge_table = {}
-        self.static_table_name = []
-        self.dynamic_table_name = ['Comment', 'Person', 'Person_likes_Comment']
-        self.edge_table_name = ['Person_likes_Comment']
     
     def load_data(self):
         for table_name in self.static_table_name:
@@ -51,6 +48,13 @@ class LDBC:
             dst = table.get_df().iloc[:, 1].to_numpy()
             edge_table = EdgeTable(torch.tensor(src), torch.tensor(dst))
             self.edge_table[table_name] = edge_table
+    
+    def build_index(self):
+        self.table['TagClass'].create_continuous_index('id')
+        self.table['Comment'].create_hash_index('id')
+        self.table['Person'].create_hash_index('id')
+        self.table['Forum'].create_hash_index('id')
+        self.table['Post'].create_hash_index('id')
 
     def get_table(self, table_name):
         return self.table[table_name]
