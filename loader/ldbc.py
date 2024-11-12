@@ -51,13 +51,19 @@ class LDBC:
     
     def build_index(self):
         self.table['TagClass'].create_continuous_index('id')
+        self.table['Person'].create_hash_index('placeId')
         self.table['Comment'].create_hash_index('id')
         self.table['Person'].create_hash_index('id')
         self.table['Forum'].create_hash_index('id')
         self.table['Post'].create_hash_index('id')
+    
 
     def get_table(self, table_name):
         return self.table[table_name]
+    
+    # reorder the table by the order of the indices
+    def reorder_table(self, table_name, indices):
+        pass
 
 # path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvCompositeMergeForeign-LongDateFormatter"
 # ldbc = LDBC(path)

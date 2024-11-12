@@ -34,8 +34,7 @@ if __name__ == "__main__":
         path = f"comment_indices_{place_id}.pkl"
         with open(path, "rb") as f:
             comment_indices = pickle.load(f)
-        test_scan(comment_table, comment_indices, ["creationDate", "locationIP", "browserUsed", "content"])
-    
+        result_data = test_scan(comment_table, comment_indices, ["creationDate", "locationIP", "browserUsed", "content"])
 
     # random_access_start = time.time()
     # for result_name in result_names:
