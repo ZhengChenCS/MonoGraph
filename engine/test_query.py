@@ -5,7 +5,6 @@ from loader.ldbc import LDBC
 import torch
 from torch_scatter import gather_csr, scatter, segment_csr
 from torch_sparse import SparseTensor
-from engine.operator import get_indices_sort_join, get_indices_hash_join
 import pickle
 
 
@@ -13,16 +12,10 @@ import pickle
 def test_query(ldbc, place_id):
 
     start_time = time.time()
-
-    # Get person table
-    person_table = ldbc.get_table("Person")
-    person_like_comment_table = ldbc.get_table("Person_likes_Comment")
-
     person_filter_start_time = time.time()
     # Get all person ids who belong to place with id = place_id
-    person_ids = person_table.get_column_data_tensor('id')
-    place_ids = person_table.get_column_data_tensor('place')
-    person_ids_in_place = person_ids[place_ids == place_id]
+    person_table = ldbc.get_table("Person")
+    person_ids_in_place = person_table.get_data_by_index(index=place_id, index_column='place', columns=['id'])['id']
     
     person_filter_end_time = time.time()
     print(f"Filtering person ids took {person_filter_end_time - person_filter_start_time:.4f} seconds")
@@ -30,43 +23,23 @@ def test_query(ldbc, place_id):
 
     # Get all comment ids liked by person_ids_in_place
     person_like_comment_table = ldbc.edge_table["Person_likes_Comment"]
-    rowptr, active_comment_id, e_id = person_like_comment_table.expand(person_ids_in_place)
-    
+    active_comment_id = person_like_comment_table.expand(person_ids_in_place)
     expand_time = time.time()
     print(f"Expanding person likes took {expand_time - person_filter_end_time:.4f} seconds")
-    # print(rowptr)
-    # print(output)
-    # print(e_id)
 
-    join_start_time = time.time()
-    # find all comment ids in comment table
-    comment_table = ldbc.get_table("Comment")
+    active_comment_id = [item for sublist in active_comment_id for item in sublist]
+    with open(f"../inter_result/comment_{place_id}.pkl", "wb") as f:
+        pickle.dump(active_comment_id, f)
 
-    #comment_ids = comment_table.get_column_data_tensor('id')
-    # comment_indices = get_indices_sort_join(active_comment_id, comment_ids, is_sorted=True)
-    # comment_indices = get_indices_hash_join(active_comment_id, comment_ids)
-    comment_indices = comment_table.get_indices_by_key('id', active_comment_id)
-    join_end_time = time.time()
-    path = f"comment_indices_{place_id}.pkl"
-    with open(path, "wb") as f:
-        pickle.dump(comment_indices, f)
-    print(f"Indexing joining took {join_end_time - expand_time:.4f} seconds")
-    
     result_start_time = time.time()
+    comment_table = ldbc.get_table("Comment")
     # get result data from comment table
     result_names = ["creationDate", "locationIP", "browserUsed", "content"]
-    result_data = {}      
-    for result_name in result_names:
-        result_data[result_name] = comment_table.get_data_by_indices(result_name, comment_indices)
+    result_data = comment_table.get_data_by_index(index=active_comment_id, index_column='id', columns=result_names)
     result_end_time = time.time()
-    print(f"Getting result data took {result_end_time - join_end_time:.4f} seconds")
+    print(f"Getting result data took {result_end_time - result_start_time:.4f} seconds")
 
-    # # print result data
-    # for result_name in result_names:
-    #     print(result_data[result_name])
     print(len(result_data["creationDate"]))
-
-    
     total_time = time.time()
     print(f"Total execution time: {total_time - start_time:.4f} seconds")
 
@@ -74,10 +47,7 @@ if __name__ == "__main__":
     start_time = time.time()
     
     # Load LDBC data
-    ldbc = LDBC("/mnt/nvme/ldbc_dataset/social_network-sf30-CsvCompositeMergeForeign-LongDateFormatter")
-    ldbc.load_data()
-    ldbc.build_edge_table()
-    ldbc.build_index()
+    ldbc = LDBC("/mnt/nvme/ldbc_dataset/social_network-sf10-CsvCompositeMergeForeign-LongDateFormatter")
 
     load_time = time.time()
     print(f"Data loading and edge table building took {load_time - start_time:.4f} seconds")
@@ -86,5 +56,6 @@ if __name__ == "__main__":
 
     for place_id in place_ids:
         test_query(ldbc, place_id)
+        # break
     
     
