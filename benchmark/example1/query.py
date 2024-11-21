@@ -1,11 +1,16 @@
+import glob
+import os
+import fnmatch
+import re
+import os 
 import sys
 import time
-sys.path.append("..")
-from loader.ldbc import LDBC
-import torch
-from torch_scatter import gather_csr, scatter, segment_csr
-from torch_sparse import SparseTensor
 import pickle
+current_dir = os.path.dirname(os.path.abspath(__file__))
+monograph_dir = os.path.abspath(os.path.join(current_dir, '..', '..'))
+sys.path.append(monograph_dir)
+
+from dataset.ldbc import LDBC
 
 
 # place_id -> person_id -> comment_id -> creationDate, locationIP, browserUsed, content
@@ -28,8 +33,8 @@ def test_query(ldbc, place_id):
     print(f"Expanding person likes took {expand_time - person_filter_end_time:.4f} seconds")
 
     active_comment_id = [item for sublist in active_comment_id for item in sublist]
-    with open(f"../inter_result/comment_{place_id}.pkl", "wb") as f:
-        pickle.dump(active_comment_id, f)
+    # with open(f"../inter_result/comment_{place_id}.pkl", "wb") as f:
+    #     pickle.dump(active_comment_id, f)
 
     result_start_time = time.time()
     comment_table = ldbc.get_table("Comment")

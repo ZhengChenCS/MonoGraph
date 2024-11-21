@@ -2,9 +2,16 @@ import glob
 import os
 import fnmatch
 import re
-import torch
+import os 
+import sys
 import time
-from loader.basic_table import BasicTable, EdgeTable
+current_dir = os.path.dirname(os.path.abspath(__file__))
+monograph_dir = os.path.abspath(os.path.join(current_dir, '..'))
+sys.path.append(monograph_dir)
+
+from storage.basic_table import BasicTable
+from storage.edge_table import EdgeTable
+from storage.vertex_table import VertexTable
 
 class LDBC:
     def __init__(self, path):
@@ -102,7 +109,6 @@ class LDBC:
 
 # path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvCompositeMergeForeign-LongDateFormatter"
 # ldbc = LDBC(path)
-# ldbc.load_data()
 # print(ldbc.get_table("Person"))
 
 

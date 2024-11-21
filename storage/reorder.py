@@ -46,7 +46,12 @@ sorted_comment = reorder_heter(edge_table)
 path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvCompositeMergeForeign-LongDateFormatter/dynamic/comment_0_0.csv"
 comment_table = BasicTable(path)
 comment_table.create_index('id')
+
+# import random
+# ids = comment_table.get_column_data('id')
+# random_sorted_ids = random.sample(list(ids), len(ids))
 comment_table.reorder_table(sorted_comment)
+comment_table.create_index('id')
 path = "../inter_result/comment_0_0.csv"
 comment_table.save(path)
 
