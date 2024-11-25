@@ -1,0 +1,55 @@
+Data loading time: 22.27 seconds
+Edge table building time: 41.51 seconds
+Index building time: 0.01 seconds
+Total load time: 63.79 seconds
+Data loading and edge table building took 63.7945 seconds
+Filtering person ids took 0.0045 seconds
+Expanding person likes took 0.0082 seconds
+Getting result data took 1.9171 seconds
+17322
+Total execution time: 1.9300 seconds
+Filtering person ids took 0.0003 seconds
+Expanding person likes took 0.0013 seconds
+Getting result data took 0.0027 seconds
+8475
+Total execution time: 0.0044 seconds
+Filtering person ids took 0.0003 seconds
+Expanding person likes took 0.0016 seconds
+Getting result data took 0.0043 seconds
+14325
+Total execution time: 0.0064 seconds
+Filtering person ids took 0.0003 seconds
+Expanding person likes took 0.0020 seconds
+Getting result data took 0.0055 seconds
+16677
+Total execution time: 0.0080 seconds
+Filtering person ids took 0.0003 seconds
+Expanding person likes took 0.0019 seconds
+Getting result data took 0.0052 seconds
+15324
+Total execution time: 0.0076 seconds
+Filtering person ids took 0.0003 seconds
+Expanding person likes took 0.0013 seconds
+Getting result data took 0.0032 seconds
+9306
+Total execution time: 0.0049 seconds
+Filtering person ids took 0.0003 seconds
+Expanding person likes took 0.0015 seconds
+Getting result data took 0.0036 seconds
+12717
+Total execution time: 0.0055 seconds
+Filtering person ids took 0.0003 seconds
+Expanding person likes took 0.0018 seconds
+Getting result data took 0.0047 seconds
+14607
+Total execution time: 0.0069 seconds
+Filtering person ids took 0.0003 seconds
+Expanding person likes took 0.0016 seconds
+Getting result data took 0.0047 seconds
+11891
+Total execution time: 0.0067 seconds
+Filtering person ids took 0.0003 seconds
+Expanding person likes took 0.0020 seconds
+Getting result data took 0.0054 seconds
+15955
+Total execution time: 0.0078 seconds
