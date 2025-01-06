@@ -54,36 +54,3 @@ class Graph:
         else:
             raise ValueError("Direction must be 'out' or 'in'.")
         return node_neighbors, degrees
-    
-    def label_propagation(self, src_labels, dst_labels, direction='out'):
-        if not isinstance(src_labels, torch.Tensor):
-            src_labels = torch.tensor(src_labels)
-        if not isinstance(dst_labels, torch.Tensor):
-            dst_labels = torch.tensor(dst_labels)
-        
-        if direction == 'out':
-            label_matrix = torch.zeros((len(dst_labels), src_labels.max() + 1), dtype=torch.int)
-            label_matrix.scatter_add_(1, src_labels.unsqueeze(1), torch.ones_like(src_labels).unsqueeze(1))
-            propagated_labels = self.graph.spmm(label_matrix)
-
-            new_dst_labels = propagated_labels.argmax(dim=1)
-
-        elif direction == 'in':
-            label_matrix = torch.zeros((len(src_labels), dst_labels.max() + 1), dtype=torch.int)
-            label_matrix.scatter_add_(1, dst_labels.unsqueeze(1), torch.ones_like(dst_labels).unsqueeze(1))
-            propagated_labels = self.graph.t().spmm(label_matrix)
-            new_src_labels = propagated_labels.argmax(dim=1)
-
-        else:
-            raise ValueError("Direction must be 'out' or 'in'.")
-
-        if direction == 'out':
-            return src_labels, new_dst_labels
-        else:
-            return new_src_labels, dst_labels
-
-# src = np.array([0, 0, 1, 2, 3, 3, 4, 4, 5, 6, 7, 8, 9])
-# dst = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3])
-# graph = Graph(src, dst)
-# print(graph.get_neighbors(0))
-# print(graph.get_batch_neighbors(torch.tensor([0, 1, 2]), 'out'))    

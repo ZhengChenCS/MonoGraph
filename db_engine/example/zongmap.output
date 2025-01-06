@@ -1,0 +1,128 @@
+cz: Connection::Connection
+cz: Connection::query PROFILE MATCH (c:C) where c.id < 1000 return count(c)
+cz: ClientContext::query PROFILE MATCH (c:C) where c.id < 1000 return count(c)
+CZ: Parse Query
+Statement:23
+cz: prepareNoLock
+cz: plans size: 1
+cz: plan: EXPLAIN[Explain]
+PROJECTION[COUNT(c._ID)]
+AGGREGATE[Group By [], Aggregate [COUNT(c._ID), ]]
+PROJECTION[c._ID]
+FILTER[LESS_THAN(c.ID,1000)]
+SCAN_NODE_TABLE[c._ID c.ID]
+CZ: Mapping logical plan to Physical
+CZ: Map logical plan to Physical
+CZ: Operator17
+CZ: Operator37
+CZ: Operator1
+CZ: Operator37
+CZ: Operator22
+CZ: Operator39
+Mapping Scan node Table
+CZ: Scan Table
+CZ: table->getNumTotalRows(transaction): 200000000
+CZ: TYPE SCAN
+Tables: C,Alias: c,Properties: c.ID
+end of map operator
+cz: mapFilterLESS_THAN(c.ID,1000)
+end of map operator
+end of map operator
+end of map operator
+end of map operator
+end of map operator
+end of map
+cz: executeNonTransactionStatement
+cz: QueryProcessor::execute
+Task:0
+Task:1
+Task:2
+Execution time: 0.0318s, Compiling time: 0.0002s
+┌─────────────────────────────────┐
+│┌───────────────────────────────┐│
+││         Physical Plan         ││
+│└───────────────────────────────┘│
+└─────────────────────────────────┘
+┌─────────────────────────────────┐
+│       RESULT_COLLECTOR[8]       │
+│   ---------------------------   │
+│   Expressions: explain result   │
+│   ---------------------------   │
+│       NumOutputTuples: 0        │
+│   ---------------------------   │
+│     ExecutionTime: 0.000000     │
+└────────────────┬────────────────┘
+┌────────────────┴────────────────┐
+│           PROFILE[7]            │
+│   ---------------------------   │
+│   ---------------------------   │
+│       NumOutputTuples: 0        │
+│   ---------------------------   │
+│     ExecutionTime: 0.000000     │
+└────────────────┬────────────────┘
+┌────────────────┴────────────────┐
+│       RESULT_COLLECTOR[6]       │
+│   ---------------------------   │
+│    Expressions: COUNT(c._ID)    │
+│   ---------------------------   │
+│       NumOutputTuples: 1        │
+│   ---------------------------   │
+│     ExecutionTime: 0.247000     │
+└────────────────┬────────────────┘
+┌────────────────┴────────────────┐
+│          PROJECTION[5]          │
+│   ---------------------------   │
+│    Expressions: COUNT(c._ID)    │
+│   ---------------------------   │
+│       NumOutputTuples: 1        │
+│   ---------------------------   │
+│     ExecutionTime: 0.000000     │
+└────────────────┬────────────────┘
+┌────────────────┴────────────────┐
+│        AGGREGATE_SCAN[4]        │
+│   ---------------------------   │
+│     Aggregate: COUNT(c._ID)     │
+│   ---------------------------   │
+│       NumOutputTuples: 1        │
+│   ---------------------------   │
+│     ExecutionTime: 0.000000     │
+└────────────────┬────────────────┘
+┌────────────────┴────────────────┐
+│          AGGREGATE[3]           │
+│   ---------------------------   │
+│     Aggregate: COUNT(c._ID)     │
+│   ---------------------------   │
+│       NumOutputTuples: 1        │
+│   ---------------------------   │
+│     ExecutionTime: 0.012000     │
+└────────────────┬────────────────┘
+┌────────────────┴────────────────┐
+│          PROJECTION[2]          │
+│   ---------------------------   │
+│       Expressions: c._ID        │
+│   ---------------------------   │
+│      NumOutputTuples: 999       │
+│   ---------------------------   │
+│     ExecutionTime: 0.007000     │
+└────────────────┬────────────────┘
+┌────────────────┴────────────────┐
+│            FILTER[1]            │
+│   ---------------------------   │
+│         LESS_THAN(c.ID)         │
+│   ---------------------------   │
+│      NumOutputTuples: 999       │
+│   ---------------------------   │
+│     ExecutionTime: 0.332000     │
+└────────────────┬────────────────┘
+┌────────────────┴────────────────┐
+│       SCAN_NODE_TABLE[0]        │
+│   ---------------------------   │
+│            Tables: C            │
+│            Alias: c             │
+│        Properties: c.ID         │
+│   ---------------------------   │
+│     NumOutputTuples: 262144     │
+│   ---------------------------   │
+│    ExecutionTime: 593.538000    │
+└─────────────────────────────────┘
+

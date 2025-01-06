@@ -1,0 +1,134 @@
+cz: Connection::Connection
+cz: Connection::query MATCH (c:C) where c.id < 100 return count(c)
+cz: ClientContext::query MATCH (c:C) where c.id < 100 return count(c)
+CZ: Parse Query
+Statement:0
+cz: prepareNoLock
+cz: plans size: 1
+cz: plan: PROJECTION[COUNT(c._ID)]
+AGGREGATE[Group By [], Aggregate [COUNT(c._ID), ]]
+PROJECTION[c._ID]
+FILTER[LESS_THAN(c.ID,100)]
+SCAN_NODE_TABLE[c._ID c.ID]
+CZ: Mapping logical plan to Physical
+CZ: Map logical plan to Physical
+CZ: Operator37
+CZ: Operator1
+CZ: Operator37
+CZ: Operator22
+CZ: Operator39
+Mapping Scan node Table
+CZ: Scan Table
+CZ: maxOffset 200000000
+200000000
+CZ: TYPE SCAN
+Tables: C,Alias: c,Properties: c.ID
+end of map operator
+end of map operator
+end of map operator
+end of map operator
+end of map operator
+end of map
+cz: executeNonTransactionStatement
+cz: QueryProcessor::execute
+cz: TaskScheduler::scheduleTaskAndWaitOrError
+cz: TaskScheduler::scheduleTaskAndWaitOrError: dependency
+cz: TaskScheduler::scheduleTaskAndWaitOrError
+Task:0
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::scheduleTaskAndWaitOrError: task->isCompletedNoLock() 0
+num Data Chunks1
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+num Data Chunks1
+cz: TaskScheduler::scheduleTaskAndWaitOrError: task->isCompletedNoLock() 1
+Task:1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+num Data Chunks1
+cz: TaskScheduler::scheduleTaskAndWaitOrError: task->isCompletedNoLock() 0
+num Data Chunks1
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+num Data Chunksnum Data Chunks11
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+ProcessTask run
+num Data Chunks1
+ProcessTask run
+cz: TaskScheduler::runWorkerThread: scheduledTask->task->run()
+ProcessTask run
+num Data Chunks1
+num Data Chunks1
+num Data Chunks1
+
+num Data Chunks1
+num Data Chunks1
+cz: TaskScheduler::scheduleTaskAndWaitOrError: task->isCompletedNoLock() 1

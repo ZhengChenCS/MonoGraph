@@ -4,7 +4,8 @@ import networkx as nx
 
 class BasicTable:
     def __init__(self, path):
-        self.df = pd.read_csv(path, sep='|', mangle_dupe_cols=True)
+        # self.df = pd.read_csv(path, sep='|', mangle_dupe_cols=True)
+        self.df = pd.read_csv(path, sep='|')
         self.header = self.df.columns.tolist()
         self.indexed_columns = set()
 
@@ -77,7 +78,7 @@ class BasicTable:
         self.df = self.df.loc[full_indices].reset_index()
     
     def save(self, path):
-        self.df.to_csv(path, sep='|', index=True)
+        self.df.to_csv(path, sep='|', index=False)
 
     def __str__(self):
         return f"BasicTable with {len(self.df.columns)} columns: {self.df.columns.tolist()}"

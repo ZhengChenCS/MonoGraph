@@ -1,8 +1,7 @@
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from loader.basic_table import BasicTable, EdgeTable
-
+from storage.basic_table import BasicTable, EdgeTable
 
 def reorder_heter(G: EdgeTable, target='out'):
     src_nodes = G.get_src_nodes()

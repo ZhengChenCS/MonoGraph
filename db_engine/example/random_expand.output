@@ -1,0 +1,198 @@
+cz: Connection::Connection
+cz: Connection::query PROFILE MATCH (a:A {id: 93})-[:A_B]->(b:B)-[:B_C]->(c:C) RETURN a.id, b.id, c.id
+cz: ClientContext::query PROFILE MATCH (a:A {id: 93})-[:A_B]->(b:B)-[:B_C]->(c:C) RETURN a.id, b.id, c.id
+CZ: Parse Query
+Statement:23
+cz: prepareNoLock
+cz: plans size: 1
+cz: plan: EXPLAIN[Explain]
+PROJECTION[a.ID,b.ID,c.ID]
+HASH_JOIN[c._ID]
+CHILD:
+    FLATTEN[]
+    SCAN_NODE_TABLE[c._ID c.ID]
+CHILD:
+    HASH_JOIN[a._ID]
+    CHILD:
+        EXTEND[b-->c]
+        EXTEND[b<--a]
+        SCAN_NODE_TABLE[b._ID b.ID]
+    CHILD:
+        FILTER[EQUALS(a.ID,93)]
+        SCAN_NODE_TABLE[a._ID a.ID]
+CZ: Mapping logical plan to Physical
+CZ: Map logical plan to Physical
+CZ: Operator17
+CZ: Operator37
+CZ: Operator25
+CZ: Operator23
+CZ: Operator39
+Mapping Scan node Table
+CZ: Scan Table
+CZ: table->getNumTotalRows(transaction): 200000000
+CZ: TYPE SCAN
+Tables: C,Alias: c,Properties: c.ID
+end of map operator
+end of map operator
+CZ: Operator40
+CZ: Operator37
+CZ: Operator25
+CZ: Operator19
+CZ: Operator19
+CZ: Operator39
+Mapping Scan node Table
+CZ: Scan Table
+CZ: table->getNumTotalRows(transaction): 1000000
+CZ: TYPE SCAN
+Tables: B,Alias: b,Properties: b.ID
+end of map operator
+end of map operator
+end of map operator
+CZ: Operator39
+Mapping Scan node Table
+CZ: Scan Table
+CZ: table->getNumTotalRows(transaction): 1000
+CZ: Primary key Scan
+end of map operator
+end of map operator
+end of map operator
+end of map operator
+end of map operator
+end of map operator
+end of map operator
+end of map
+cz: executeNonTransactionStatement
+cz: QueryProcessor::execute
+Task:0
+Task:1
+Task:2
+Task:3
+Execution time: 1.4008s, Compiling time: 0.0004s
+┌────────────────────────────────────┐
+│┌──────────────────────────────────┐│
+││          Physical Plan           ││
+│└──────────────────────────────────┘│
+└────────────────────────────────────┘
+┌────────────────────────────────────┐                                                                              
+│        RESULT_COLLECTOR[15]        │                                                                              
+│   ------------------------------   │                                                                              
+│    Expressions: explain result     │                                                                              
+│   ------------------------------   │                                                                              
+│         NumOutputTuples: 0         │                                                                              
+│   ------------------------------   │                                                                              
+│      ExecutionTime: 0.000000       │                                                                              
+└─────────────────┬──────────────────┘                                                                              
+┌─────────────────┴──────────────────┐                                                                              
+│            PROFILE[14]             │                                                                              
+│   ------------------------------   │                                                                              
+│   ------------------------------   │                                                                              
+│         NumOutputTuples: 0         │                                                                              
+│   ------------------------------   │                                                                              
+│      ExecutionTime: 0.000000       │                                                                              
+└─────────────────┬──────────────────┘                                                                              
+┌─────────────────┴──────────────────┐                                                                              
+│        RESULT_COLLECTOR[13]        │                                                                              
+│   ------------------------------   │                                                                              
+│         Expressions: a.ID          │                                                                              
+│                b.ID                │                                                                              
+│                c.ID                │                                                                              
+│   ------------------------------   │                                                                              
+│      NumOutputTuples: 208327       │                                                                              
+│   ------------------------------   │                                                                              
+│     ExecutionTime: 161.264000      │                                                                              
+└─────────────────┬──────────────────┘                                                                              
+┌─────────────────┴──────────────────┐                                                                              
+│           PROJECTION[12]           │                                                                              
+│   ------------------------------   │                                                                              
+│         Expressions: a.ID          │                                                                              
+│                b.ID                │                                                                              
+│                c.ID                │                                                                              
+│   ------------------------------   │                                                                              
+│      NumOutputTuples: 208327       │                                                                              
+│   ------------------------------   │                                                                              
+│      ExecutionTime: 26.383000      │                                                                              
+└─────────────────┬──────────────────┘                                                                              
+┌─────────────────┴──────────────────┐                                                                              
+│        HASH_JOIN_PROBE[11]         │                                                                              
+│   ------------------------------   │                                                                              
+│            Keys: c._ID             │                                                                              
+│   ------------------------------   │───────────────────┐                                                          
+│      NumOutputTuples: 208131       │                   │                                                          
+│   ------------------------------   │                   │                                                          
+│    ExecutionTime: 22872.406000     │                   │                                                          
+└─────────────────┬──────────────────┘                   │                                                          
+┌─────────────────┴──────────────────┐ ┌─────────────────┴──────────────────┐                                       
+│             FLATTEN[1]             │ │        HASH_JOIN_BUILD[10]         │                                       
+│   ------------------------------   │ │   ------------------------------   │                                       
+│   ------------------------------   │ │            Keys: c._ID             │                                       
+│     NumOutputTuples: 176343040     │ │           Payloads: a.ID           │                                       
+│   ------------------------------   │ │                b.ID                │                                       
+│     ExecutionTime: 232.627000      │ │   ------------------------------   │                                       
+│                                    │ │      NumOutputTuples: 208131       │                                       
+│                                    │ │   ------------------------------   │                                       
+│                                    │ │      ExecutionTime: 9.535000       │                                       
+└─────────────────┬──────────────────┘ └─────────────────┬──────────────────┘                                       
+┌─────────────────┴──────────────────┐ ┌─────────────────┴──────────────────┐                                       
+│         SCAN_NODE_TABLE[0]         │ │           SEMI_MASKER[9]           │                                       
+│   ------------------------------   │ │   ------------------------------   │                                       
+│             Tables: C              │ │   Operators: SCAN_NODE_TABLE[0]    │                                       
+│              Alias: c              │ │   ------------------------------   │                                       
+│          Properties: c.ID          │ │      NumOutputTuples: 208131       │                                       
+│   ------------------------------   │ │   ------------------------------   │                                       
+│     NumOutputTuples: 176343040     │ │      ExecutionTime: 32.208000      │                                       
+│   ------------------------------   │ │                                    │                                       
+│     ExecutionTime: 1034.198000     │ │                                    │                                       
+└────────────────────────────────────┘ └─────────────────┬──────────────────┘                                       
+                                       ┌─────────────────┴──────────────────┐                                       
+                                       │           PROJECTION[8]            │                                       
+                                       │   ------------------------------   │                                       
+                                       │         Expressions: a.ID          │                                       
+                                       │               c._ID                │                                       
+                                       │                b.ID                │                                       
+                                       │   ------------------------------   │                                       
+                                       │      NumOutputTuples: 208327       │                                       
+                                       │   ------------------------------   │                                       
+                                       │      ExecutionTime: 0.313000       │                                       
+                                       └─────────────────┬──────────────────┘                                       
+                                       ┌─────────────────┴──────────────────┐                                       
+                                       │         HASH_JOIN_PROBE[7]         │                                       
+                                       │   ------------------------------   │                                       
+                                       │            Keys: a._ID             │                                       
+                                       │   ------------------------------   │───────────────────┐                   
+                                       │       NumOutputTuples: 1045        │                   │                   
+                                       │   ------------------------------   │                   │                   
+                                       │     ExecutionTime: 345.194000      │                   │                   
+                                       └─────────────────┬──────────────────┘                   │                   
+                                       ┌─────────────────┴──────────────────┐ ┌─────────────────┴──────────────────┐
+                                       │         SCAN_REL_TABLE[4]          │ │         HASH_JOIN_BUILD[6]         │
+                                       │   ------------------------------   │ │   ------------------------------   │
+                                       │            Tables: B_C             │ │            Keys: a._ID             │
+                                       │       Direction: (b)-[]->(c)       │ │           Payloads: a.ID           │
+                                       │   ------------------------------   │ │   ------------------------------   │
+                                       │     NumOutputTuples: 126404360     │ │         NumOutputTuples: 1         │
+                                       │   ------------------------------   │ │   ------------------------------   │
+                                       │     ExecutionTime: 402.471000      │ │      ExecutionTime: 0.143000       │
+                                       └─────────────────┬──────────────────┘ └─────────────────┬──────────────────┘
+                                       ┌─────────────────┴──────────────────┐ ┌─────────────────┴──────────────────┐
+                                       │         SCAN_REL_TABLE[3]          │ │   PRIMARY_KEY_SCAN_NODE_TABLE[5]   │
+                                       │   ------------------------------   │ │   ------------------------------   │
+                                       │            Tables: A_B             │ │              Key: 93               │
+                                       │       Direction: (b)<-[]-(a)       │ │              Alias: a              │
+                                       │   ------------------------------   │ │          Expressions: a.ID         │
+                                       │      NumOutputTuples: 1000000      │ │   ------------------------------   │
+                                       │   ------------------------------   │ │         NumOutputTuples: 1         │
+                                       │      ExecutionTime: 28.537000      │ │   ------------------------------   │
+                                       │                                    │ │      ExecutionTime: 0.036000       │
+                                       └─────────────────┬──────────────────┘ └────────────────────────────────────┘
+                                       ┌─────────────────┴──────────────────┐                                       
+                                       │         SCAN_NODE_TABLE[2]         │                                       
+                                       │   ------------------------------   │                                       
+                                       │             Tables: B              │                                       
+                                       │              Alias: b              │                                       
+                                       │          Properties: b.ID          │                                       
+                                       │   ------------------------------   │                                       
+                                       │      NumOutputTuples: 1000000      │                                       
+                                       │   ------------------------------   │                                       
+                                       │      ExecutionTime: 4.631000       │                                       
+                                       └────────────────────────────────────┘                                       
+

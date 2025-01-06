@@ -1,0 +1,154 @@
+cz: Connection::Connection
+cz: Connection::query PROFILE MATCH (c:C)<-[:B_C]-(:B) RETURN COUNT(DISTINCT c) AS countOfCWithNeighbors
+cz: ClientContext::query PROFILE MATCH (c:C)<-[:B_C]-(:B) RETURN COUNT(DISTINCT c) AS countOfCWithNeighbors
+CZ: Parse Query
+Statement:23
+cz: prepareNoLock
+cz: plans size: 1
+cz: plan: EXPLAIN[Explain]
+PROJECTION[countOfCWithNeighbors]
+AGGREGATE[Group By [], Aggregate [countOfCWithNeighbors, ]]
+PROJECTION[c._ID]
+HASH_JOIN[._ID]
+CHILD:
+    EXTEND[c<--]
+    SCAN_NODE_TABLE[c._ID ]
+CHILD:
+    SCAN_NODE_TABLE[._ID ]
+CZ: Mapping logical plan to Physical
+CZ: Map logical plan to Physical
+CZ: Operator17
+CZ: Operator37
+CZ: Operator1
+CZ: Operator37
+CZ: Operator19
+CZ: Operator39
+Mapping Scan node Table
+CZ expression: c._ID
+CZ scan.getProperties(): 0
+CZ scan.getPropertyPredicates(): 0
+CZ: Scan Table
+CZ: table->getNumTotalRows(transaction): 200000000
+CZ: TYPE SCAN
+Tables: C,Alias: c
+end of map operator
+CZ expression: c._ID
+CZ expression: ._ID
+end of map operator
+end of map operator
+CZ expression: countOfCWithNeighbors
+end of map operator
+end of map operator
+CZ expression: countOfCWithNeighbors
+CZ expression: explain result
+end of map operator
+end of map
+CZ expression: explain result
+cz: executeNonTransactionStatement
+cz: QueryProcessor::execute
+Task:0
+ProcessTask run
+Task:1
+ProcessTask run
+ProcessTask run
+ProcessTask run
+ProcessTask run
+ProcessTask run
+ProcessTask run
+ProcessTask run
+ProcessTask run
+ProcessTask run
+ProcessTask run
+ProcessTask run
+ProcessTask run
+Task:2
+ProcessTask run
+Execution time: 44.3320s, Compiling time: 0.0002s
+┌────────────────────────────────────────┐
+│┌──────────────────────────────────────┐│
+││            Physical Plan             ││
+│└──────────────────────────────────────┘│
+└────────────────────────────────────────┘
+┌────────────────────────────────────────┐
+│          RESULT_COLLECTOR[8]           │
+│   ----------------------------------   │
+│      Expressions: explain result       │
+│   ----------------------------------   │
+│           NumOutputTuples: 0           │
+│   ----------------------------------   │
+│        ExecutionTime: 0.000000         │
+└───────────────────┬────────────────────┘
+┌───────────────────┴────────────────────┐
+│               PROFILE[7]               │
+│   ----------------------------------   │
+│   ----------------------------------   │
+│           NumOutputTuples: 0           │
+│   ----------------------------------   │
+│        ExecutionTime: 0.000000         │
+└───────────────────┬────────────────────┘
+┌───────────────────┴────────────────────┐
+│          RESULT_COLLECTOR[6]           │
+│   ----------------------------------   │
+│   Expressions: countOfCWithNeighbors   │
+│   ----------------------------------   │
+│           NumOutputTuples: 1           │
+│   ----------------------------------   │
+│        ExecutionTime: 0.045000         │
+└───────────────────┬────────────────────┘
+┌───────────────────┴────────────────────┐
+│             PROJECTION[5]              │
+│   ----------------------------------   │
+│   Expressions: countOfCWithNeighbors   │
+│   ----------------------------------   │
+│           NumOutputTuples: 1           │
+│   ----------------------------------   │
+│        ExecutionTime: 0.000000         │
+└───────────────────┬────────────────────┘
+┌───────────────────┴────────────────────┐
+│           AGGREGATE_SCAN[4]            │
+│   ----------------------------------   │
+│    Aggregate: countOfCWithNeighbors    │
+│   ----------------------------------   │
+│           NumOutputTuples: 1           │
+│   ----------------------------------   │
+│        ExecutionTime: 0.000000         │
+└───────────────────┬────────────────────┘
+┌───────────────────┴────────────────────┐
+│              AGGREGATE[3]              │
+│   ----------------------------------   │
+│    Aggregate: countOfCWithNeighbors    │
+│   ----------------------------------   │
+│           NumOutputTuples: 1           │
+│   ----------------------------------   │
+│      ExecutionTime: 43759.332000       │
+└───────────────────┬────────────────────┘
+┌───────────────────┴────────────────────┐
+│             PROJECTION[2]              │
+│   ----------------------------------   │
+│           Expressions: c._ID           │
+│   ----------------------------------   │
+│       NumOutputTuples: 200000000       │
+│   ----------------------------------   │
+│        ExecutionTime: 23.018000        │
+└───────────────────┬────────────────────┘
+┌───────────────────┴────────────────────┐
+│           SCAN_REL_TABLE[1]            │
+│   ----------------------------------   │
+│              Tables: B_C               │
+│         Direction: (c)<-[]-()          │
+│   ----------------------------------   │
+│       NumOutputTuples: 200000000       │
+│   ----------------------------------   │
+│       ExecutionTime: 348.179000        │
+└───────────────────┬────────────────────┘
+┌───────────────────┴────────────────────┐
+│           SCAN_NODE_TABLE[0]           │
+│   ----------------------------------   │
+│               Tables: C                │
+│                Alias: c                │
+│   ----------------------------------   │
+│       NumOutputTuples: 200000000       │
+│   ----------------------------------   │
+│       ExecutionTime: 199.025000        │
+└────────────────────────────────────────┘
+
