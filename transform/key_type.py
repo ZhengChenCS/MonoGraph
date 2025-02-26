@@ -6,7 +6,7 @@ import sys
 #         pass
 
 
-
+# 编码，避免table名，列名，主键，非主键hash为同一个值
 def table_encoding(key):
     return '#' + key
 

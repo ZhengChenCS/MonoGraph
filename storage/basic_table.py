@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 import networkx as nx
+import os
+
+
 
 class BasicTable:
     def __init__(self, path):
@@ -8,6 +11,8 @@ class BasicTable:
         self.df = pd.read_csv(path, sep='|')
         self.header = self.df.columns.tolist()
         self.indexed_columns = set()
+        self.name = os.path.basename(path)
+    
 
     def get_df(self):
         return self.df
@@ -83,3 +88,15 @@ class BasicTable:
     def __str__(self):
         return f"BasicTable with {len(self.df.columns)} columns: {self.df.columns.tolist()}"
 
+    # 编码，避免table名，列名，主键，非主键hash为同一个值
+    def table_encoding(self, key):
+        return '#' + key
+
+    def column_encoding(self, key, table_id):
+        return '$' + str(table_id) + '_' + key
+
+    def edge_id_encoding(self, key, table_id):
+        return str(table_id) + "_" + str(key)
+
+    def primary_key_encoding(self, key, table_id):
+        return str(table_id) + "_" + key

@@ -12,7 +12,7 @@ from torch import Tensor
 class EdgeTable(BasicTable):
     def __init__(self, path, src_column_name, dst_column_name, graph_type='heterogeneous'):
         super().__init__(path)
-        self.graph = None
+        self.graph = None # 边表所对应的原图，src->des
         self.src_column_name = src_column_name
         self.dst_column_name = dst_column_name
         self.graph_type = graph_type
@@ -70,5 +70,106 @@ class EdgeTable(BasicTable):
 
     def __str__(self):
         return f"EdgeTable with {len(self.src_array)} edges"
+    
+    def transform(self, t_graph):
+        """
+        transform edge table into transformed graph
+
+        Args: 
+            t_graph (transformed_graph_meta): basic info of transformed graph
+        """
+        cols = self.df.columns.tolist()
+        col_name = self.header
+        table_name = self.name
+
+        t_graph.create_vertex(self.table_encoding(table_name))
+        table_id = t_graph.get_id(self.table_encoding(table_name))
+
+        num_rows = len(cols[0])
+        num_cols = len(col_name)
+
+        # table_config = {
+        #     "Person_studyAt_University": {
+        #         "src_table_name": "Person",
+        #         "dst_table_name": "Organisation"
+        #     },
+        #     "Comment_hasTag_Tag": {
+        #         "src_table_name": "Comment",
+        #         "dst_table_name": "Tag"
+        #     },
+        #     "Person_hasInterest_Tag": {
+        #         "src_table_name": "Person",
+        #         "dst_table_name": "Tag"
+        #     },
+        #     "Person_workAt_Company": {
+        #         "src_table_name": "Person",
+        #         "dst_table_name": "Organisation"
+        #     },
+        #     "Person_knows_Person": {
+        #         "src_table_name": "Person",
+        #         "dst_table_name": "Person"
+        #     },
+        #     "Forum_hasMember_Person": {
+        #         "src_table_name": "Forum",
+        #         "dst_table_name": "Person"
+        #     },
+        #     "Person_likes_Comment": {
+        #         "src_table_name": "Person",
+        #         "dst_table_name": "Comment"
+        #     },
+        #     "Post_hasTag_Tag": {
+        #         "src_table_name": "Post",
+        #         "dst_table_name": "Tag"
+        #     },
+        #     "Forum_hasTag_Tag": {
+        #         "src_table_name": "Forum",
+        #         "dst_table_name": "Tag"
+        #     },
+        #     "Person_likes_Post": {
+        #         "src_table_name": "Person",
+        #         "dst_table_name": "Post"
+        #     }
+        # }
+        # config = table_config.get(table_name)
+        # if config:
+        #     src_index = 1
+        #     dst_index = 2
+        #     src_table_name = config["src_table_name"]
+        #     dst_table_name = config["dst_table_name"]
+        # else:
+        #     print(f"{table_name} not exist.")
+        #     exit(0)
+        src_index = self.df.get_loc(self.src_column_name)
+        dst_index = self.df.get_loc(self.des_column_name)
+        src_table_id = t_graph.get_id(self.table_encoding(self.src_column_name))
+        dst_table_id = t_graph.get_id(self.table_encoding(self.des_column_name))
+        for i in range(num_cols):
+            t_graph.create_vertex(self.column_encoding(col_name[i], table_id))
+            col_name_id = t_graph.get_id(self.column_encoding(col_name[i], table_id))
+            t_graph.create_edge_mapping(col_name_id, table_id)
+        for i in range(num_rows):
+            t_graph.create_vertex(self.edge_id_encoding(i, table_id))
+            edge_id = t_graph.get_id(self.edge_id_encoding(i, table_id))
+            t_graph.create_edge_mapping(edge_id, table_id)
+        ## create edge prop value (not including src and dst)
+        for i in range(num_cols):
+            if i == src_index or i == dst_index:
+                continue
+            col_name_id = t_graph.get_id(self.column_encoding(col_name[i], table_id))
+            for j in range(num_rows):
+                t_graph.create_vertex(cols[i][j]) # create value
+                value_id = t_graph.get_id(cols[i][j])
+                t_graph.create_edge_mapping(col_name_id, value_id)
+                t_graph.create_edge(self.edge_id_encoding(j, table_id), cols[i][j])
+        ## create edge from src to dst
+        for i in range(num_rows):
+            edge_id = t_graph.get_id(self.edge_id_encoding(i, table_id))
+            src_value = cols[src_index][i]
+            dst_value = cols[dst_index][i]
+            src_id = t_graph.get_id(self.primary_key_encoding(src_value, src_table_id))
+            dst_id = t_graph.get_id(self.primary_key_encoding(dst_value, dst_table_id))
+            t_graph.create_edge_mapping(edge_id, src_id)
+            t_graph.create_edge_mapping(edge_id, dst_id)
+        return t_graph
 
 

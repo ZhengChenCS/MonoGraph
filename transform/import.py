@@ -168,7 +168,7 @@ def import_edge_table(graph, table):
         dst_index = 2
         src_table_name = "Forum"
         dst_table_name = "Tag"
-    elif table_name == "Person_likes_Post":
+    elif table_name == "Person_likes_Post": # 边表需要告知src, dst的名称，此处为列举，到时候改写导入逻辑时需要优化
         '''
         {'Person_likes_Post': ['creationDate', 'PersonId', 'PostId']}
         '''
@@ -231,6 +231,8 @@ if __name__ == '__main__':
     'Post_hasTag_Tag', 'Forum_hasTag_Tag', 'Person_likes_Post'
     ]
     
+    #当前是把读入的table作为外部变量，而不是存在graph类里头
+    #static_table.items()和vertex_table_name是vertex表，edge_table_name是edge表
     static_table = {}
     for name in static_table_name:
         table = read_table(static_path+"/"+name)
@@ -283,3 +285,4 @@ if __name__ == '__main__':
     # graph.save_graph("graph.npy")
     graph.save_graph("edge.txt")
     graph.save_idmap("idmap.pkl")
+

@@ -32,12 +32,12 @@ class scheme:
         self.table['comment'].save(f'{output_path}/comment_0_0.csv')
     
     def reorder(self):
-        label_id_map = {}
+        label_id_map = {} #对于每行数据，建立place_id->index(每行索引)的映射
         place_table = self.table['place']
         for index, row in place_table.df.iterrows():
             label = f"label_{index}"
             place_id = row['id']
-            label_id_map[place_id] = label
+            label_id_map[place_id] = labelxiaow
         person_isLocatedIn_place_table = self.table['person_isLocatedIn_place']
         for index, row in person_isLocatedIn_place_table.df.iterrows():
             person_id = row['from']
