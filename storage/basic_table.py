@@ -6,12 +6,12 @@ import os
 
 
 class BasicTable:
-    def __init__(self, path):
+    def __init__(self, path, table_name):
         # self.df = pd.read_csv(path, sep='|', mangle_dupe_cols=True)
         self.df = pd.read_csv(path, sep='|')
         self.header = self.df.columns.tolist()
         self.indexed_columns = set()
-        self.name = os.path.basename(path)
+        self.name = table_name
     
 
     def get_df(self):
@@ -90,13 +90,13 @@ class BasicTable:
 
     # 编码，避免table名，列名，主键，非主键hash为同一个值
     def table_encoding(self, key):
-        return '#' + key
+        return '#' + str(key)
 
     def column_encoding(self, key, table_id):
-        return '$' + str(table_id) + '_' + key
+        return '$' + str(table_id) + '_' + str(key)
 
     def edge_id_encoding(self, key, table_id):
         return str(table_id) + "_" + str(key)
 
     def primary_key_encoding(self, key, table_id):
-        return str(table_id) + "_" + key
+        return str(table_id) + "_" + str(key)

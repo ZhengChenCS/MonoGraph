@@ -8,8 +8,8 @@ from storage.basic_table import BasicTable
 from storage.transform_graph import transformed_graph
 
 class VertexTable(BasicTable):
-    def __init__(self, path):
-        super().__init__(path)
+    def __init__(self, path, table_name):
+        super().__init__(path, table_name)
     
     def transform(self, t_graph):
         """
@@ -18,41 +18,43 @@ class VertexTable(BasicTable):
         Args: 
             t_graph (transformed_graph): info of transformed graph
         """
-        cols = self.df.columns.tolist()
-        col_name = self.header
+
         table_name = self.name
-        # (table_name, table_content),  = table.items()
+        col_names = self.get_column_names()
 
         t_graph.create_vertex(self.table_encoding(table_name))
         table_id = t_graph.get_id(self.table_encoding(table_name))
 
-        # col_name = table_content.col_name
-        # cols = table_content.col
-
-        primary_index = col_name.index('id')
-        
-        for i in range(len(col_name)):
-            t_graph.create_vertex(self.column_encoding(col_name[i], table_id))
-            col_id = t_graph.get_id(self.column_encoding(col_name[i], table_id))
+        # 创建每一个列
+        for col_name in col_names:
+            col_id = t_graph.create_vertex(self.column_encoding(col_name, table_id))
             t_graph.create_edge_mapping(table_id, col_id)
-            for value in cols[i]:
-                if i == primary_index:
-                    t_graph.create_vertex(self.primary_key_encoding(value, table_id))
-                    value_id = t_graph.get_id(self.primary_key_encoding(value, table_id))
-                    t_graph.create_edge_mapping(col_id, value_id)
-                else:
-                    t_graph.create_vertex(value)
-                    value_id = t_graph.get_id(value)
-                    t_graph.create_edge_mapping(col_id, value_id)
         
-        
+        primary_index = next(iter(self.indexed_columns))
 
-        # create edge from primary key to other value
-        for i in range(len(cols[i])):
-            for j in range(len(col_name)):
-                if j == primary_index:
-                    continue
+        for cur in range(len(self.df)):
+            primary_id = -1
+            for col_name in col_names:
+                col_id = t_graph.get_id(self.column_encoding(col_name, table_id))
+                if col_name == primary_index:
+                    data = self.df.index[cur]
+                    primary_id = t_graph.create_vertex(self.primary_key_encoding(data, table_id))
+                    t_graph.create_edge_mapping(primary_id, col_id)
                 else:
-                    t_graph.create_edge(cols[j][i], cols[j][primary_index])
-
+                    data = self.df.iloc[cur][col_name]
+                    value_id = t_graph.create_vertex(data)
+                    t_graph.create_edge_mapping(value_id, col_id)
+                    t_graph.create_edge_mapping(value_id, primary_id)
+        
+        # t_graph.print_vertex()
+                    
         return t_graph
+
+        
+        
+        
+
+
+
+    def __str__(self):
+        return f"VertexTable with {len(self.df.columns)} columns: {self.df.columns.tolist()}"

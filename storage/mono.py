@@ -9,7 +9,8 @@ from storage.vertex_table import VertexTable
 
 class MonoGraph:
     def __init__(self):
-        self.edge_tables = {}
+        self.idmap = None
+        self.graph = None
     
     def load_edge_table(self, table_name, table):
         self.edge_tables[table_name] = table

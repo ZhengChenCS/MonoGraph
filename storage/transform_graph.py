@@ -21,6 +21,7 @@ class transformed_graph:
             self.id_map[key] = self.max_id
             self.max_id += 1
             self.vertex_cnt +=1
+            return self.id_map[key]
     
     def get_id(self, key):
         if key not in self.id_map:

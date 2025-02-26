@@ -75,27 +75,19 @@ class LDBC:
         
         total_end_time = time.time()
         print(f'Total load time: {total_end_time - total_start_time:.2f} seconds')
+
     
     def _load_data(self):
-        for table_name in self.static_table_name:
-            files = glob.glob(os.path.join(self.parent_path, "static", '*'))
-            pattern = re.compile(f'^{table_name.lower()}(_\\d+_\\d+)?$', re.IGNORECASE)
-            matched_files = [file for file in files if pattern.match(os.path.splitext(os.path.basename(file))[0].lower())]
-            for file in matched_files:
-                # print(f"Processing file: {file}")
-                table = VertexTable(file)
-                table.transform(self.t_graph)
-                print(table_name)
-                self.vertex_table[table_name] = table
         for table_name in self.vertex_table_name:
-            files = glob.glob(os.path.join(self.parent_path, "dynamic", '*'))
+            static_files = glob.glob(os.path.join(self.parent_path, "static", '*'))
+            dynamic_files = glob.glob(os.path.join(self.parent_path, "dynamic", '*'))
+            all_files = dynamic_files + static_files
             pattern = re.compile(f'^{table_name.lower()}(_\\d+_\\d+)?$', re.IGNORECASE)
-            matched_files = [file for file in files if pattern.match(os.path.splitext(os.path.basename(file))[0].lower())]
+            matched_files = [file for file in all_files if pattern.match(os.path.splitext(os.path.basename(file))[0].lower())]
             for file in matched_files:
                 # print(f"Processing file: {file}")
-                table = VertexTable(file)
-                table.transform(self.t_graph)
                 print(table_name)
+                table = VertexTable(file, table_name)
                 self.vertex_table[table_name] = table
         
     
@@ -109,19 +101,17 @@ class LDBC:
             pattern = re.compile(f'^{table_name.lower()}(_\\d+_\\d+)?$', re.IGNORECASE)
             matched_files = [file for file in all_files if pattern.match(os.path.splitext(os.path.basename(file))[0].lower())]
             for file in matched_files:
-                # print(f"Processing file: {file}")
-                # if table_name == 'Person_knows_Person':
+                print(table_name)
                 if any(table_name == edge[0] for edge in self.edge_table_name):
-                    edge_table = EdgeTable(file, src_column, dst_column, graph_type='homogeneous')
+                    edge_table = EdgeTable(file, table_name, src_column, dst_column, graph_type='homogeneous')
                 else:
-                    edge_table = EdgeTable(file, src_column, dst_column)
-                edge_table.transform(self.t_graph)
+                    edge_table = EdgeTable(file, table_name, src_column, dst_column)
                 self.edge_table[table_name] = edge_table
     
     def _build_index(self):
         self.vertex_table['organisation'].create_index('id')
         self.vertex_table['tagclass'].create_index('id')
-        self.vertex_table['person'].create_index(['id', 'place'])
+        self.vertex_table['person'].create_index(['id'])
         self.vertex_table['comment'].create_index('id')
         self.vertex_table['forum'].create_index('id')
         self.vertex_table['post'].create_index('id')
@@ -138,13 +128,25 @@ class LDBC:
     # reorder the table by the order of the indices
     def reorder_table(self, table_name, indices):
         self.vertex_table[table_name].reorder_table(indices)
+    
+    def transform_graph(self):
+        for table in self.vertex_table:
+            self.t_graph = self.vertex_table[table].transform(self.t_graph)
+        for table in self.edge_table:
+            self.t_graph = self.edge_table[table].transform(self.t_graph)
+        return self.t_graph
+    
+    def save_graph(self):
+        self.t_graph.save_graph("ldbc_tgraph_edge.txt")
+        self.t_graph.save_idmap("ldbc_tgraph_idmap.pkl")
 
 # path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvBasic-StringDateFormatter"
 # path = "/mnt/nvme/ldbc_dataset/sf10/ori"
 path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvBasic-StringDateFormatter"
 ldbc = LDBC(path)
-ldbc.t_graph.save_graph("ldbc_tgraph_edge.txt")
-ldbc.t_graph.save_idmap("ldbc_tgraph_idmap.pkl")
+ldbc.transform_graph()
+# ldbc.t_graph.save_graph("ldbc_tgraph_edge.txt")
+# ldbc.t_graph.save_idmap("ldbc_tgraph_idmap.pkl")
 # print(ldbc.get_table("Person"))
 
 
