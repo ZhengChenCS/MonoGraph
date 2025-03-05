@@ -1,3 +1,9 @@
+import sys
+sys.path.append('~/MonoGraph/hashmap')
+
+import graph_bind
+g = graph_bind.T_Graph("Name")
+
 import glob
 import os
 import fnmatch
@@ -57,7 +63,7 @@ class LDBC:
         ]
         self.vertex_table = {}
         self.edge_table = {}
-        self.t_graph = transformed_graph("LDBC") # transformed graph
+        self.t_graph = graph_bind.T_Graph("LDBC") # transformed graph
         
         total_start_time = time.time()
         
@@ -133,19 +139,21 @@ class LDBC:
         self.vertex_table[table_name].reorder_table(indices)
     
     def transform_graph(self):
+        
+        # self.t_graph.transformVertexTable(self.vertex_table["organisation"])
+        
         for table in self.vertex_table:
-            self.t_graph = self.vertex_table[table].transform(self.t_graph)
-        # checkpoint_path = "forum_checkpoint.pkl"
-        # with open(checkpoint_path, 'rb') as checkpoint_file:
-        #     self.t_graph = pickle.load(checkpoint_file)
-        #     print("Checkpoint loaded successfully.")
+            print("transforming vertex table", table)
+            self.t_graph.transformVertexTable(self.vertex_table[table])
         for table in self.edge_table:
-            self.t_graph = self.edge_table[table].transform(self.t_graph)
+            print("transforming edge table", table)
+            self.t_graph.transformEdgeTable(self.edge_table[table])
+
         return self.t_graph
     
     def save_graph(self):
-        self.t_graph.save_graph("ldbc_tgraph_edge.txt")
-        self.t_graph.save_idmap("ldbc_tgraph_idmap.pkl")
+        self.t_graph.saveGraph("ldbc_tgraph_edge.txt")
+        self.t_graph.saveIdMap("ldbc_tgraph_idmap.pkl")
 
 # path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvBasic-StringDateFormatter"
 # path = "/mnt/nvme/ldbc_dataset/sf10/ori"
@@ -154,8 +162,4 @@ ldbc = LDBC(path)
 ldbc.transform_graph()
 print("transform done", flush=True)
 ldbc.save_graph()
-# ldbc.t_graph.save_graph("ldbc_tgraph_edge.txt")
-# ldbc.t_graph.save_idmap("ldbc_tgraph_idmap.pkl")
-# print(ldbc.get_table("Person"))
-
 

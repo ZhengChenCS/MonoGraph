@@ -1,0 +1,4 @@
+CPP_FILES := $(shell find libcuckoo -name "*.cpp") t_graph.cpp
+INCLUDE_DIRS := -I/usr/include/python3.x -I$(PYBIND11_INCLUDE)
+
+g++ -shared -std=c++11 -fPIC $(INCLUDE_DIRS) $(CPP_FILES) -o graph_bind`python3-config --extension-suffix`
