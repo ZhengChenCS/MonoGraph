@@ -2,28 +2,27 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
+#include <unordered_map>
+#include <type_traits>
 
 // using namespace pybind11;
 namespace py = pybind11;
 
-std::string to_string(py::object obj) {
-    // 如果 obj 是字符串
-    if (py::isinstance<py::str>(obj)) {
-        return obj.cast<std::string>();
-    }
-    // 如果 obj 是整数
-    else if (py::isinstance<py::int_>(obj)) {
-        return std::to_string(obj.cast<int>());
-    }
-    // 如果 obj 是浮点数
-    else if (py::isinstance<py::float_>(obj)) {
-        return std::to_string(obj.cast<double>());
-    }
-    // 如果 obj 不是预期的类型，可以处理错误或返回一个默认值
-    else {
-        return "unknown_type";
-    }
+#define PARALLEL_THRESHOLD 1
+
+template<typename T>
+std::string to_string(T data) {
+    static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value,
+                  "Unsupported type: T must be an integral or floating point type.");
+    return std::to_string(data);
 }
+
+// 特化用于 std::string
+template<>
+std::string to_string<std::string>(std::string data) {
+    return data;
+}
+
 T_Graph::T_Graph(const std::string &name) : _name(name), _max_id(0), _vertex_cnt(0), _edge_cnt(0) {};
 uint64_t T_Graph::createVertex(const std::string &key)
 {
@@ -31,8 +30,8 @@ uint64_t T_Graph::createVertex(const std::string &key)
     _id_map.upsert(
         key,
         [&](uint64_t &existingID)
-        { id = existingID; },                               // key 存在时更新
-        _max_id.fetch_add(1, std::memory_order_acq_rel) + 1 // key 不存在时插入的值
+        { id = existingID;},                               // key 存在时更新
+        id = _max_id.fetch_add(1, std::memory_order_acq_rel) + 1 // key 不存在时插入的值
     );
     return id;
 }
@@ -96,46 +95,69 @@ void T_Graph::transformVertexTable(const py::object &vertex_table)
     VertexTable vt(vertex_table);
     createVertex(table_encoding(vt.getTableName()));
     auto table_id = getId(table_encoding(vt.getTableName()));
-
     // 创建每一个列
     auto num_rows = vt.row_count();
     auto col_names = vt.getColNames();
 
     for (auto &col_name : vt.getColNames())
     {
-        createVertex(column_encoding(col_name, table_id));
-        auto col_id = getId(column_encoding(col_name, table_id));
+        auto col_id = createVertex(column_encoding(col_name, table_id));
         createEdgeMapping(table_id, col_id);
     }
 
     auto primary_index = vt.indexed_columns.begin();
-
-#pragma omp parallel for
-    for (auto cur = 0; cur < num_rows; cur++)
-    {
-        auto primary_id = -1;
-        for (auto const &col_name : col_names)
+    if(num_rows > PARALLEL_THRESHOLD){
+        #pragma omp parallel for
+        for (auto cur = 0; cur < num_rows; cur++)
         {
-            auto col_id = getId(column_encoding(col_name, table_id));
-            if (col_name == *primary_index)
+            auto primary_id = -1;
+            
+            for (auto const &col_name : col_names)
             {
-                auto data = to_string(vt.get_index_value(cur));
-                createVertex(primary_key_encoding(data, table_id));
-                auto primary_id = getId(primary_key_encoding(data, table_id));
-                createEdgeMapping(primary_id, col_id);
+                auto col_id = getId(column_encoding(col_name, table_id));
+                if (col_name == *primary_index)
+                {
+                    auto data = vt.local_index.get_value(cur);
+                    std::string sdata = to_string(data);
+                    primary_id = createVertex(primary_key_encoding(data, table_id));
+                    createEdgeMapping(primary_id, col_id);
+                }
+                else
+                {
+                    auto data = vt.local_columns[col_name].get_value(cur);
+                    std::string sdata = to_string(data);
+                    auto value_id = createVertex(sdata);
+                    createEdgeMapping(value_id, col_id);
+                    createEdgeMapping(value_id, primary_id);
+                }  
             }
-            else
+        }
+    }else{
+        for (auto cur = 0; cur < num_rows; cur++)
+        {
+            auto primary_id = -1;
+            
+            for (auto const &col_name : col_names)
             {
-                auto data = to_string(vt.get_value(cur, col_name));
-                createVertex(data);
-                auto value_id = getId(data);
-                createEdgeMapping(value_id, col_id);
-                createEdgeMapping(value_id, primary_id);
+                auto col_id = getId(column_encoding(col_name, table_id));
+                if (col_name == *primary_index)
+                {
+                    auto data = vt.local_index.get_value(cur);
+                    std::string sdata = to_string(data);
+                    primary_id = createVertex(primary_key_encoding(sdata, table_id));
+                    createEdgeMapping(primary_id, col_id);
+                }
+                else
+                {
+                    auto data = vt.local_columns[col_name].get_value(cur);
+                    std::string sdata = to_string(data);
+                    auto value_id = createVertex(sdata);
+                    createEdgeMapping(value_id, col_id);
+                    createEdgeMapping(value_id, primary_id);
+                }
             }
         }
     }
-
-    // int num_rows = df.begin()->second.size();
 }
 
 void T_Graph::transformEdgeTable(const py::object &edge_table)
@@ -157,12 +179,11 @@ void T_Graph::transformEdgeTable(const py::object &edge_table)
 
     for (size_t i = 0; i < num_cols; i++)
     {
-        createVertex(column_encoding(col_names[i], table_id));
-        auto col_name_id = getId(column_encoding(col_names[i], table_id));
+        auto col_name_id = createVertex(column_encoding(col_names[i], table_id));
         colName2Id.insert(col_names[i], col_name_id);
         createEdgeMapping(col_name_id, table_id);
     }
-
+    #pragma omp parallel for
     for (size_t i = 0; i < num_rows; i++)
     {
         createVertex(edge_id_encoding(std::to_string(i), table_id));
@@ -182,9 +203,8 @@ void T_Graph::transformEdgeTable(const py::object &edge_table)
             }
             else
             {
-                auto data = to_string(et.get_value(cur, col_name));
-                createVertex(data);
-                auto value_id = getId(data);
+                auto data = to_string(et.local_columns[col_name].get_value(cur));
+                auto value_id = createVertex(data);
                 createEdgeMapping(colName2Id.find(col_name), value_id);
                 createEdge(edge_id_encoding(std::to_string(cur), table_id), data);
             }
@@ -196,8 +216,8 @@ void T_Graph::transformEdgeTable(const py::object &edge_table)
     for (size_t i = 0; i < num_rows; i++)
     {
         auto edge_id = getId(edge_id_encoding(std::to_string(i), table_id));
-        auto src_value = to_string(et.get_value(i, et.src_column_name));
-        auto dst_value = to_string(et.get_value(i, et.dst_column_name));
+        auto src_value = to_string(et.local_columns[et.src_column_name].get_value(i));
+        auto dst_value = to_string(et.local_columns[et.dst_column_name].get_value(i));
         createVertex(primary_key_encoding(src_value, src_table_id));
         createVertex(primary_key_encoding(dst_value, dst_table_id));
         auto src_id = getId(primary_key_encoding(src_value, src_table_id));
