@@ -122,6 +122,9 @@ private:
                 if (py::isinstance<py::str>(py_obj)) {
                     std::string str = py_obj.cast<std::string>();
                     dest.string_data.push_back(str);
+                }else if (py_obj.is_none()) {
+                    // 如果是 None，添加一个空字符串或其他占位符
+                    dest.string_data.push_back("");  // 使用空字符串作为占位符
                 }
             }
         } else {
