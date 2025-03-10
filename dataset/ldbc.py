@@ -12,6 +12,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 monograph_dir = os.path.abspath(os.path.join(current_dir, '..'))
 sys.path.append(monograph_dir)
 
+import libmono
+
 from storage.basic_table import BasicTable
 from storage.edge_table import EdgeTable
 from storage.vertex_table import VertexTable
@@ -57,7 +59,7 @@ class LDBC:
         ]
         self.vertex_table = {}
         self.edge_table = {}
-        self.t_graph = transformed_graph("LDBC") # transformed graph
+        self.t_graph = libmono.T_Graph("LDBC") # transformed graph
         
         total_start_time = time.time()
         
@@ -92,6 +94,11 @@ class LDBC:
                 print(table_name, flush=True)
                 table = VertexTable(file, table_name)
                 self.vertex_table[table_name] = table
+            
+        
+        # self.vertex_table["post"].df.loc[5239348, 'imageFile'] = 'photo1145141919810.jpg'
+        # print(self.vertex_table["post"].df.loc[5239348, 'imageFile'])
+        
         
     
     def _build_edge_table(self):
@@ -133,19 +140,27 @@ class LDBC:
         self.vertex_table[table_name].reorder_table(indices)
     
     def transform_graph(self):
+        tot_start_time = time.time()
+        # self.t_graph.transformVertexTable(self.vertex_table["post"])
         for table in self.vertex_table:
-            self.t_graph = self.vertex_table[table].transform(self.t_graph)
-        # checkpoint_path = "forum_checkpoint.pkl"
-        # with open(checkpoint_path, 'rb') as checkpoint_file:
-        #     self.t_graph = pickle.load(checkpoint_file)
-        #     print("Checkpoint loaded successfully.")
+            print("Transforming VertexTable", table)
+            start_time = time.time()
+            self.t_graph.transformVertexTable(self.vertex_table[table])
+            end_time = time.time()
+            print(f"Transform {table} table finished in {end_time - start_time:.2f} seconds")
+
         for table in self.edge_table:
-            self.t_graph = self.edge_table[table].transform(self.t_graph)
+            print("Transforming EdgeTable", table)
+            self.t_graph.transformEdgeTable(self.edge_table[table])
+            print(f"Transform {table} table finished in {end_time - start_time:.2f} seconds")
+            
+        tot_end_time = time.time()
+        print(f"Total transform finished in {tot_end_time - tot_start_time:.2f} seconds")
         return self.t_graph
     
     def save_graph(self):
-        self.t_graph.save_graph("ldbc_tgraph_edge.txt")
-        self.t_graph.save_idmap("ldbc_tgraph_idmap.pkl")
+        self.t_graph.saveGraph("/mnt/nvme/ldbc_dataset/sf10/ldbc_tgraph_edge.txt")
+        self.t_graph.saveIdMap("/mnt/nvme/ldbc_dataset/sf10/ldbc_tgraph_idmap.pkl")
 
 # path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvBasic-StringDateFormatter"
 # path = "/mnt/nvme/ldbc_dataset/sf10/ori"
@@ -154,8 +169,6 @@ ldbc = LDBC(path)
 ldbc.transform_graph()
 print("transform done", flush=True)
 ldbc.save_graph()
-# ldbc.t_graph.save_graph("ldbc_tgraph_edge.txt")
-# ldbc.t_graph.save_idmap("ldbc_tgraph_idmap.pkl")
-# print(ldbc.get_table("Person"))
+
 
 
