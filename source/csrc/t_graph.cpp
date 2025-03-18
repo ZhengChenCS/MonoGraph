@@ -59,32 +59,29 @@ void T_Graph::createEdgeMapping(const uint64_t &src, const uint64_t &dst)
 void T_Graph::saveGraph(const std::string &path)
 {
     std::ofstream file(path);
-    if (!file)
-    {
+    if (!file) {
         std::cerr << "Error: Unable to open file " << path << std::endl;
         return;
     }
-    for (const auto &pair : _edge)
-    {
-        file << pair.first << " " << pair.second << "\n";
+    file << "Source,Target\n";
+    
+    for (const auto& pair : _edge) {
+        file << pair.first << "," << pair.second << "\n";
     }
     file.close();
 };
 void T_Graph::saveIdMap(const std::string &path)
 {
-    std::ofstream file(path, std::ios::binary);
-    if (!file)
-    {
+    std::ofstream file(path);  // 移除 binary 模式，使用文本模式[1](@ref)
+    if (!file) {
         std::cerr << "Error: Unable to open file " << path << std::endl;
         return;
     }
-    size_t size = _id_map.size();
-    file.write(reinterpret_cast<const char *>(&size), sizeof(size));
+    file << "Key,Value\n";
+    
     auto lt = _id_map.lock_table();
-    for (const auto &pair : lt)
-    {
-        file.write(reinterpret_cast<const char *>(&pair.first), sizeof(pair.first));
-        file.write(reinterpret_cast<const char *>(&pair.second), sizeof(pair.second));
+    for (const auto& pair : lt) {
+        file << pair.first << "," << pair.second << "\n";
     }
     file.close();
     std::cout << "id map has saved into " << path << std::endl;
