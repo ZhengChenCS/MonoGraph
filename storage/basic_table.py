@@ -9,6 +9,8 @@ class BasicTable:
     def __init__(self, path, table_name):
         # self.df = pd.read_csv(path, sep='|', mangle_dupe_cols=True)
         self.df = pd.read_csv(path, sep='|')
+        # 对字符串列进行填充，填充为 "nan"
+        self.df = self.df.apply(lambda col: col.fillna('nan') if col.dtype == 'object' else col)
         self.header = self.df.columns.tolist()
         self.indexed_columns = set()
         self.name = table_name
