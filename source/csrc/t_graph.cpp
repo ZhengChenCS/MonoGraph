@@ -10,16 +10,18 @@ namespace py = pybind11;
 
 #define PARALLEL_THRESHOLD 1
 
-template<typename T>
-std::string to_string(T data) {
+template <typename T>
+std::string to_string(T data)
+{
     static_assert(std::is_integral<T>::value || std::is_floating_point<T>::value,
                   "Unsupported type: T must be an integral or floating point type.");
     return std::to_string(data);
 }
 
 // 特化用于 std::string
-template<>
-std::string to_string<std::string>(std::string data) {
+template <>
+std::string to_string<std::string>(std::string data)
+{
     return data;
 }
 
@@ -30,7 +32,7 @@ uint64_t T_Graph::createVertex(const std::string &key)
     _id_map.upsert(
         key,
         [&](uint64_t &existingID)
-        { id = existingID;},                               // key 存在时更新
+        { id = existingID; },                                    // key 存在时更新
         id = _max_id.fetch_add(1, std::memory_order_acq_rel) + 1 // key 不存在时插入的值
     );
     return id;
@@ -59,29 +61,33 @@ void T_Graph::createEdgeMapping(const uint64_t &src, const uint64_t &dst)
 void T_Graph::saveGraph(const std::string &path)
 {
     std::ofstream file(path);
-    if (!file) {
+    if (!file)
+    {
         std::cerr << "Error: Unable to open file " << path << std::endl;
         return;
     }
-    file << "Source,Target\n";
-    
-    for (const auto& pair : _edge) {
-        file << pair.first << "," << pair.second << "\n";
+    file << "Source|Target\n";
+
+    for (const auto &pair : _edge)
+    {
+        file << pair.first << "|" << pair.second << "\n";
     }
     file.close();
 };
 void T_Graph::saveIdMap(const std::string &path)
 {
-    std::ofstream file(path);  // 移除 binary 模式，使用文本模式[1](@ref)
-    if (!file) {
+    std::ofstream file(path); // 移除 binary 模式，使用文本模式[1](@ref)
+    if (!file)
+    {
         std::cerr << "Error: Unable to open file " << path << std::endl;
         return;
     }
-    file << "Key,Value\n";
-    
+    file << "Key|Value\n";
+
     auto lt = _id_map.lock_table();
-    for (const auto& pair : lt) {
-        file << pair.first << "," << pair.second << "\n";
+    for (const auto &pair : lt)
+    {
+        file << pair.first << "|" << pair.second << "\n";
     }
     file.close();
     std::cout << "id map has saved into " << path << std::endl;
@@ -103,12 +109,13 @@ void T_Graph::transformVertexTable(const py::object &vertex_table)
     }
 
     auto primary_index = vt.indexed_columns.begin();
-    if(num_rows > PARALLEL_THRESHOLD){
-        #pragma omp parallel for
+    if (num_rows > PARALLEL_THRESHOLD)
+    {
+#pragma omp parallel for
         for (auto cur = 0; cur < num_rows; cur++)
         {
             auto primary_id = -1;
-            
+
             for (auto const &col_name : col_names)
             {
                 auto col_id = getId(column_encoding(col_name, table_id));
@@ -126,14 +133,16 @@ void T_Graph::transformVertexTable(const py::object &vertex_table)
                     auto value_id = createVertex(sdata);
                     createEdgeMapping(value_id, col_id);
                     createEdgeMapping(value_id, primary_id);
-                }  
+                }
             }
         }
-    }else{
+    }
+    else
+    {
         for (auto cur = 0; cur < num_rows; cur++)
         {
             auto primary_id = -1;
-            
+
             for (auto const &col_name : col_names)
             {
                 auto col_id = getId(column_encoding(col_name, table_id));
@@ -180,7 +189,7 @@ void T_Graph::transformEdgeTable(const py::object &edge_table)
         colName2Id.insert(col_names[i], col_name_id);
         createEdgeMapping(col_name_id, table_id);
     }
-    #pragma omp parallel for
+#pragma omp parallel for
     for (size_t i = 0; i < num_rows; i++)
     {
         createVertex(edge_id_encoding(std::to_string(i), table_id));

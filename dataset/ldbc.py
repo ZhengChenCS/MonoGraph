@@ -159,8 +159,8 @@ class LDBC:
         return self.t_graph
     
     def save_graph(self):
-        self.t_graph.saveGraph("/mnt/nvme/ldbc_dataset/sf10/ldbc_tgraph_edge.csv")
-        self.t_graph.saveIdMap("/mnt/nvme/ldbc_dataset/sf10/ldbc_tgraph_idmap.csv")
+        self.t_graph.saveGraph("/mnt/nvme/ldbc_dataset/sf10_mono/ldbc_tgraph_edge.csv")
+        self.t_graph.saveIdMap("/mnt/nvme/ldbc_dataset/sf10_mono/ldbc_tgraph_idmap.csv")
 
 # path = "/mnt/nvme/ldbc_dataset/social_network-sf10-CsvBasic-StringDateFormatter"
 # path = "/mnt/nvme/ldbc_dataset/sf10/ori"
